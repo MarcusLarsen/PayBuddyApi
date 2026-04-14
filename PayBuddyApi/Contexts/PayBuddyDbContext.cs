@@ -7,10 +7,13 @@ namespace PayBuddyApi.Contexts
 {
     public class PayBuddyDbContext : IdentityDbContext<AppUser>
     {
-        public PayBuddyDbContext(DbContextOptions options) : base(options)
+        public PayBuddyDbContext(DbContextOptions<PayBuddyDbContext> options) : base(options)
         {
             
         }
+
+        public DbSet<Debt> Debts { get; set; }
+        public DbSet<Friendship> Friendships { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,6 +30,22 @@ namespace PayBuddyApi.Contexts
                 .WithMany()
                 .HasForeignKey(f => f.FriendId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Debt>()
+                .HasOne(d => d.Creditor)
+                .WithMany()
+                .HasForeignKey(d => d.CreditorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Debt>()
+                .HasOne(d => d.Debtor)
+                .WithMany()
+                .HasForeignKey(d => d.DebtorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Debt>()
+                .Property(d => d.Amount)
+                .HasPrecision(18, 2);
         }
     }
 }
