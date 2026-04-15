@@ -4,7 +4,7 @@ namespace PayBuddyApi.Models
 {
     public class Debt
     {
-        public int Id { get; set; }
+        public int DebtId { get; set; }
 
         public string CreditorId { get; set; } 
         public string DebtorId { get; set; } 

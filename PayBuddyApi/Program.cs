@@ -45,6 +45,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IDebtService, DebtService>();
 
 var app = builder.Build();
 
