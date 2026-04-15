@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PayBuddyApi.DTO.Debt;
 using PayBuddyApi.Interfaces;
@@ -6,6 +7,7 @@ using System.Security.Claims;
 
 namespace PayBuddyApi.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class DebtController : ControllerBase
@@ -34,7 +36,7 @@ namespace PayBuddyApi.Controllers
         }
 
         [HttpPost("CreateDebt")]
-        public async Task<IActionResult> CreateDebt(CreateDebtDto dto)
+        public async Task<IActionResult> CreateDebt(DebtForSaveDTO dto)
         {
             var userId = GetUserId();
             if (userId == null)

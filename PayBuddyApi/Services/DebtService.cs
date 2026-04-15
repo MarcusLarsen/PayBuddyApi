@@ -24,16 +24,18 @@ namespace PayBuddyApi.Services
                 .Select(d => new DebtDto
                 {
                     DebtId = d.DebtId,
+                    DebtorId = d.DebtorId,
+                    Amount = d.Amount,
+                    Description = d.Description,
+                    IsPaid = d.IsPaid,
                     CreditorName = d.Creditor!.UserName!,
                     DebtorName = d.Debtor!.UserName!,
-                    Amount = d.Amount,
-                    IsPaid = d.IsPaid,
                     CreatedAt = d.CreatedAt
                 })
                 .ToListAsync();
         }
 
-        public async Task<bool> CreateDebtAsync(string creditorId, CreateDebtDto dto)
+        public async Task<bool> CreateDebtAsync(string creditorId, DebtForSaveDTO dto)
         {
             if (dto.Amount <= 0)
                 return false;
@@ -71,4 +73,3 @@ namespace PayBuddyApi.Services
         }
     }
 }
-    
