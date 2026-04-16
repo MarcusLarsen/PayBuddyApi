@@ -42,8 +42,8 @@ namespace PayBuddyApi.Services
             {
                 Token = token,
             };
-
         }
+
         public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
         {
             var user = await _userManager.FindByNameAsync(dto.Username);
@@ -79,7 +79,7 @@ namespace PayBuddyApi.Services
                 audience: _config["JwtSettings:Audience"],
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(
-                    double.Parse(_config["JwtSettings:DurationInMinutes"])),
+                double.Parse(_config["JwtSettings:DurationInMinutes"])),
                 signingCredentials: creds
             );
 
