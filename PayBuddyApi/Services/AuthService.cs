@@ -42,8 +42,8 @@ namespace PayBuddyApi.Services
             {
                 Token = token,
             };
-
         }
+
         public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
         {
             var user = await _userManager.FindByNameAsync(dto.Username);
