@@ -1,25 +1,22 @@
 ﻿namespace PayBuddyApi.DTO.User
 {
-    namespace PayBuddyApi.DTO.Friendship
+    public class UserForSaveDTO
     {
-        public class UserForSaveDTO
-        {
 
-        }
+    }
 
-        public class UserForUpdateDTO : UserForSaveDTO
-        {
+    public class UserForUpdateDTO : UserForSaveDTO
+    {
+        public required string Id { get; set; }
+    }
 
-        }
+    public class UserDto : UserForUpdateDTO
+    {
+        public required string UserName { get; set; }
+    }
 
-        public class UserDto : UserForUpdateDTO
-        {
-
-        }
-
-        public class UserDTOMinusRelations : UserForUpdateDTO
-        {
-
-        }
+    public class UserDTOMinusRelations : UserForUpdateDTO
+    {
+        public required string UserName { get; set; }
     }
 }
