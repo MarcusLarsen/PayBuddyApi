@@ -21,8 +21,8 @@ namespace PayBuddyApi.Controllers
         {
             try
             {
-                var result = await _authService.RegisterAsync(dto);
-                return Ok(result);
+                await _authService.RegisterAsync(dto);
+                return Ok(new { message = "User created successfully" });
             }
             catch (Exception ex)
             {
