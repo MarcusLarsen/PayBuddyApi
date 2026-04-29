@@ -24,13 +24,14 @@ namespace PayBuddyApi.Controllers
         }
 
         [HttpGet("SearchUsers")]
-        public async Task<IActionResult> SearchUsers([FromQuery] string searchTerm)
+        public async Task<IActionResult> SearchUsers([FromQuery] string? searchTerm)
         {
             var userId = GetUserId();
-            if (userId == null)
+
+            if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
-            var users = await _userService.SearchUsersAsync(searchTerm, userId);
+            var users = await _userService.SearchUsersAsync(searchTerm ?? string.Empty, userId);
             return Ok(users);
         }
 

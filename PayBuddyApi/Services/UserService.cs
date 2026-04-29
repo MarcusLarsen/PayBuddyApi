@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using PayBuddyApi.Contexts;
 using PayBuddyApi.DTO.User;
 using PayBuddyApi.Interfaces;
 using PayBuddyApi.Models;
@@ -9,23 +10,36 @@ namespace PayBuddyApi.Services
     public class UserService : IUserService
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly PayBuddyDbContext _context;
 
-        public UserService(UserManager<AppUser> userManager)
+        public UserService(UserManager<AppUser> userManager, PayBuddyDbContext Context)
         {
             _userManager = userManager;
+            _context = Context;
         }
 
         public async Task<List<UserDto>> SearchUsersAsync(string searchTerm, string currentUserId)
         {
-            if (string.IsNullOrWhiteSpace(searchTerm))
-                return new List<UserDto>();
+            var friendIds = await _context.Friendships
+                .Where(f => f.UserId == currentUserId)
+                .Select(f => f.FriendId)
+                .ToListAsync();
 
-            return await _userManager.Users
-                .Where(u => u.Id != currentUserId && u.UserName != null && u.UserName.Contains(searchTerm))
+            var query = _userManager.Users
+                .Where(u => u.Id != currentUserId &&
+                            u.UserName != null &&
+                            !friendIds.Contains(u.Id));
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(u => u.UserName!.Contains(searchTerm));
+            }
+
+            return await query
                 .Select(u => new UserDto
                 {
                     Id = u.Id,
-                    UserName = u.UserName
+                    UserName = u.UserName!
                 })
                 .ToListAsync();
         }

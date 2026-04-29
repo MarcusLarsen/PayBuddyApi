@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PayBuddyApi.DTO.Friendship;
+using PayBuddyApi.DTO.Responses;
 using PayBuddyApi.Interfaces;
 using System.Security.Claims;
 
@@ -50,7 +51,10 @@ namespace PayBuddyApi.Controllers
             if (!result.Success)
                 return BadRequest(result.Message);
 
-            return Ok(result.Message);
+            return Ok(new MessageResponseDto
+            {
+                Message = "Friend added successfully."
+            });
         }
 
         [HttpDelete("{id}")]
@@ -65,8 +69,11 @@ namespace PayBuddyApi.Controllers
             
             if (!result.Success)
                 return BadRequest(result.Message);
-            
-            return Ok(result.Message);
+
+            return Ok(new MessageResponseDto
+            {
+                Message = "Friend added successfully."
+            });
         }
     }
 }
