@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PayBuddyApi.Contexts;
 
@@ -11,9 +12,11 @@ using PayBuddyApi.Contexts;
 namespace PayBuddyApi.Migrations
 {
     [DbContext(typeof(PayBuddyDbContext))]
-    partial class PayBuddyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260430122127_AddDebtStatus")]
+    partial class AddDebtStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

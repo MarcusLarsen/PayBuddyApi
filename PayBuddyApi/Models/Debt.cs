@@ -11,7 +11,10 @@ namespace PayBuddyApi.Models
 
         public decimal Amount { get; set; }
         public string? Description { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DebtStatus Status { get; set; } = DebtStatus.Pending;
+
         public bool IsPaid { get; set; }
 
         [ForeignKey(nameof(CreditorId))]
