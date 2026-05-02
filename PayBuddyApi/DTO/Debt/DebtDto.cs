@@ -10,13 +10,27 @@
     public class DebtForUpdateDTO : DebtForSaveDTO
     {
         public int DebtId { get; set; }
-        public bool IsPaid { get; set; }
+        public string Status { get; set; } = string.Empty;
     }
 
     public class DebtDto : DebtForUpdateDTO
     {
         public required string CreditorName { get; set; }
         public required string DebtorName { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        public bool CurrentUserIsCreditor { get; set; }
+        public string DisplayText { get; set; } = string.Empty;
+    }
+
+    public class DebtRequestDto
+    {
+        public int DebtId { get; set; }
+        public required string CreditorId { get; set; }
+        public required string CreditorName { get; set; }
+
+        public decimal Amount { get; set; }
+        public string? Description { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 

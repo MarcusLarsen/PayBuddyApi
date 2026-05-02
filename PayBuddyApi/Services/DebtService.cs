@@ -20,17 +20,26 @@ namespace PayBuddyApi.Services
             return await _context.Debts
                 .Include(d => d.Creditor)
                 .Include(d => d.Debtor)
-                .Where(d => d.CreditorId == userId || d.DebtorId == userId)
+                .Where(d =>
+                    (d.CreditorId == userId || d.DebtorId == userId) &&
+                    d.Status != DebtStatus.Pending &&
+                    d.Status != DebtStatus.Declined)
                 .Select(d => new DebtDto
                 {
                     DebtId = d.DebtId,
                     DebtorId = d.DebtorId,
                     Amount = d.Amount,
                     Description = d.Description,
-                    IsPaid = d.IsPaid,
+                    Status = d.Status.ToString(),
                     CreditorName = d.Creditor!.UserName!,
                     DebtorName = d.Debtor!.UserName!,
-                    CreatedAt = d.CreatedAt
+                    CreatedAt = d.CreatedAt,
+
+                    CurrentUserIsCreditor = d.CreditorId == userId,
+
+                    DisplayText = d.CreditorId == userId
+                        ? $"{d.Debtor!.UserName} skylder dig"
+                        : $"Du skylder {d.Creditor!.UserName}"
                 })
                 .ToListAsync();
         }
@@ -50,8 +59,8 @@ namespace PayBuddyApi.Services
                 DebtorId = dto.DebtorId,
                 Amount = dto.Amount,
                 Description = dto.Description,
-                IsPaid = false,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                Status = DebtStatus.Pending
             };
 
             _context.Debts.Add(debt);
@@ -67,7 +76,7 @@ namespace PayBuddyApi.Services
             if (debt.CreditorId != userId && debt.DebtorId != userId)
                 return false;
 
-            debt.IsPaid = true;
+            debt.Status = DebtStatus.Paid;
             await _context.SaveChangesAsync();
             return true;
         }

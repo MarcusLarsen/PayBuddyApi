@@ -6,13 +6,14 @@ namespace PayBuddyApi.Models
     {
         public int DebtId { get; set; }
 
-        public required string CreditorId { get; set; } 
-        public required string DebtorId { get; set; } 
+        public required string CreditorId { get; set; }
+        public required string DebtorId { get; set; }
 
         public decimal Amount { get; set; }
         public string? Description { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public bool IsPaid { get; set; }
+        public DebtStatus Status { get; set; } = DebtStatus.Pending;
 
         [ForeignKey(nameof(CreditorId))]
         public AppUser? Creditor { get; set; }
