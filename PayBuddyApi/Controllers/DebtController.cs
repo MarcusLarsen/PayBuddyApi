@@ -120,50 +120,6 @@ namespace PayBuddyApi.Controllers
             });
         }
 
-        [HttpGet("requests")]
-        public async Task<IActionResult> GetDebtRequests()
-        {
-            var userId = GetUserId();
-
-            if (userId == null)
-                return Unauthorized();
-
-            var requests = await _debtService.GetDebtRequestsAsync(userId);
-            return Ok(requests);
-        }
-
-        [HttpPut("accept/{id}")]
-        public async Task<IActionResult> AcceptDebt(int id)
-        {
-            var userId = GetUserId();
-
-            if (userId == null)
-                return Unauthorized();
-
-            var updated = await _debtService.AcceptDebtAsync(id, userId);
-
-            if (!updated)
-                return BadRequest("Could not accept debt.");
-
-            return Ok();
-        }
-
-        [HttpPut("decline/{id}")]
-        public async Task<IActionResult> DeclineDebt(int id)
-        {
-            var userId = GetUserId();
-
-            if (userId == null)
-                return Unauthorized();
-
-            var updated = await _debtService.DeclineDebtAsync(id, userId);
-
-            if (!updated)
-                return BadRequest("Could not decline debt.");
-
-            return Ok();
-        }
-
         [HttpPut("MarkAsPaid/{id}")]
         public async Task<IActionResult> MarkAsPaid(int id)
         {

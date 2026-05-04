@@ -127,38 +127,6 @@ namespace PayBuddyApi.Services
             return true;
         }
 
-        public async Task<bool> AcceptDebtAsync(int debtId, string userId)
-        {
-            var debt = await _context.Debts.FirstOrDefaultAsync(d =>
-                d.DebtId == debtId &&
-                d.DebtorId == userId &&
-                d.Status == DebtStatus.Pending);
-
-            if (debt == null)
-                return false;
-
-            debt.Status = DebtStatus.Accepted;
-            await _context.SaveChangesAsync();
-
-            return true;
-        }
-
-        public async Task<bool> DeclineDebtAsync(int debtId, string userId)
-        {
-            var debt = await _context.Debts.FirstOrDefaultAsync(d =>
-                d.DebtId == debtId &&
-                d.DebtorId == userId &&
-                d.Status == DebtStatus.Pending);
-
-            if (debt == null)
-                return false;
-
-            debt.Status = DebtStatus.Declined;
-            await _context.SaveChangesAsync();
-
-            return true;
-        }
-
         public async Task<bool> MarkAsPaidAsync(int debtId, string userId)
         {
             var debt = await _context.Debts.FirstOrDefaultAsync(d =>
@@ -168,7 +136,7 @@ namespace PayBuddyApi.Services
             if (debt == null)
                 return false;
 
-            if (debt.CreditorId != userId && debt.DebtorId != userId)
+            if (debt.CreditorId != userId)
                 return false;
 
             debt.Status = DebtStatus.Paid;

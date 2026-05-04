@@ -12,8 +12,8 @@ using PayBuddyApi.Contexts;
 namespace PayBuddyApi.Migrations
 {
     [DbContext(typeof(PayBuddyDbContext))]
-    [Migration("20260415140320_CreatedDebt")]
-    partial class CreatedDebt
+    [Migration("20260504105209_FUN")]
+    partial class FUN
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -247,11 +247,10 @@ namespace PayBuddyApi.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsPaid")
-                        .HasColumnType("bit");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("DebtId");
 
@@ -273,9 +272,15 @@ namespace PayBuddyApi.Migrations
                     b.Property<string>("AppUserId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("FriendId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .IsRequired()

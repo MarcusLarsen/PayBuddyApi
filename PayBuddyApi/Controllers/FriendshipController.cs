@@ -62,12 +62,6 @@ namespace PayBuddyApi.Controllers
             return Ok(new MessageResponseDto { Message = result.Message });
         }
 
-            return Ok(new MessageResponseDto
-            {
-                Message = "Friend request sent."
-            });
-        }
-
         [HttpPut("accept/{id}")]
         public async Task<IActionResult> Accept(int id)
         {

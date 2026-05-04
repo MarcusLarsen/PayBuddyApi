@@ -249,9 +249,6 @@ namespace PayBuddyApi.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
                     b.HasKey("DebtId");
 
                     b.HasIndex("CreditorId");
