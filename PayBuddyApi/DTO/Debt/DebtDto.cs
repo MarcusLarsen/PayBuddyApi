@@ -21,23 +21,16 @@
 
         public bool CurrentUserIsCreditor { get; set; }
         public string DisplayText { get; set; } = string.Empty;
-
-        public bool IsPaid => Status == "Paid";
-        public bool IsPending => Status == "Pending";
-        public bool IsAccepted => Status == "Accepted";
-        public bool IsDeclined => Status == "Declined";
     }
 
     public class DebtRequestDto
     {
         public int DebtId { get; set; }
-
-        public required string CreditorName { get; set; }
         public required string CreditorId { get; set; }
+        public required string CreditorName { get; set; }
 
         public decimal Amount { get; set; }
         public string? Description { get; set; }
-
         public DateTime CreatedAt { get; set; }
     }
 

@@ -34,10 +34,12 @@ namespace PayBuddyApi.Services
                     CreditorName = d.Creditor!.UserName!,
                     DebtorName = d.Debtor!.UserName!,
                     CreatedAt = d.CreatedAt,
+
                     CurrentUserIsCreditor = d.CreditorId == userId,
+
                     DisplayText = d.CreditorId == userId
-                    ? $"{d.Debtor!.UserName} skylder dig"
-                    : $"Du skylder {d.Creditor!.UserName}"
+                        ? $"{d.Debtor!.UserName} skylder dig"
+                        : $"Du skylder {d.Creditor!.UserName}"
                 })
                 .ToListAsync();
         }
@@ -88,6 +90,38 @@ namespace PayBuddyApi.Services
             };
 
             _context.Debts.Add(debt);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> AcceptDebtAsync(int debtId, string userId)
+        {
+            var debt = await _context.Debts.FirstOrDefaultAsync(d =>
+                d.DebtId == debtId &&
+                d.DebtorId == userId &&
+                d.Status == DebtStatus.Pending);
+
+            if (debt == null)
+                return false;
+
+            debt.Status = DebtStatus.Accepted;
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> DeclineDebtAsync(int debtId, string userId)
+        {
+            var debt = await _context.Debts.FirstOrDefaultAsync(d =>
+                d.DebtId == debtId &&
+                d.DebtorId == userId &&
+                d.Status == DebtStatus.Pending);
+
+            if (debt == null)
+                return false;
+
+            debt.Status = DebtStatus.Declined;
             await _context.SaveChangesAsync();
 
             return true;

@@ -20,22 +20,31 @@ namespace PayBuddyApi.Services
 
         public async Task<List<UserDto>> SearchUsersAsync(string searchTerm, string currentUserId)
         {
-            var friendIds = await _context.Friendships
-                .Where(f => f.UserId == currentUserId)
-                .Select(f => f.FriendId)
+            var blockedIds = await _context.Friendships
+                .Where(f =>
+                    (f.UserId == currentUserId || f.FriendId == currentUserId) &&
+                    (f.Status == FriendshipStatus.Accepted ||
+                     f.Status == FriendshipStatus.Pending))
+                .Select(f => f.UserId == currentUserId
+                    ? f.FriendId
+                    : f.UserId)
+                .Distinct()
                 .ToListAsync();
 
             var query = _userManager.Users
-                .Where(u => u.Id != currentUserId &&
-                            u.UserName != null &&
-                            !friendIds.Contains(u.Id));
+                .Where(u =>
+                    u.Id != currentUserId &&
+                    u.UserName != null &&
+                    !blockedIds.Contains(u.Id));
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                query = query.Where(u => u.UserName!.Contains(searchTerm));
+                query = query.Where(u =>
+                    u.UserName!.Contains(searchTerm));
             }
 
             return await query
+                .OrderBy(u => u.UserName)
                 .Select(u => new UserDto
                 {
                     Id = u.Id,

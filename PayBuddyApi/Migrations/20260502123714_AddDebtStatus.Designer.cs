@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PayBuddyApi.Contexts;
 
@@ -11,9 +12,11 @@ using PayBuddyApi.Contexts;
 namespace PayBuddyApi.Migrations
 {
     [DbContext(typeof(PayBuddyDbContext))]
-    partial class PayBuddyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260502123714_AddDebtStatus")]
+    partial class AddDebtStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -249,9 +252,6 @@ namespace PayBuddyApi.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
                     b.HasKey("DebtId");
 
                     b.HasIndex("CreditorId");
@@ -272,15 +272,9 @@ namespace PayBuddyApi.Migrations
                     b.Property<string>("AppUserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("FriendId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .IsRequired()
