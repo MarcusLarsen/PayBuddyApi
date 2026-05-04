@@ -44,6 +44,23 @@ namespace PayBuddyApi.Services
                 .ToListAsync();
         }
 
+        public async Task<List<DebtRequestDto>> GetDebtRequestsAsync(string userId)
+        {
+            return await _context.Debts
+                .Include(d => d.Creditor)
+                .Where(d => d.DebtorId == userId && d.Status == DebtStatus.Pending)
+                .Select(d => new DebtRequestDto
+                {
+                    DebtId = d.DebtId,
+                    CreditorId = d.CreditorId,
+                    CreditorName = d.Creditor!.UserName!,
+                    Amount = d.Amount,
+                    Description = d.Description,
+                    CreatedAt = d.CreatedAt
+                })
+                .ToListAsync();
+        }
+
         public async Task<bool> CreateDebtAsync(string creditorId, DebtForSaveDTO dto)
         {
             if (dto.Amount <= 0)
@@ -65,6 +82,38 @@ namespace PayBuddyApi.Services
 
             _context.Debts.Add(debt);
             await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> AcceptDebtAsync(int debtId, string userId)
+        {
+            var debt = await _context.Debts.FirstOrDefaultAsync(d =>
+                d.DebtId == debtId &&
+                d.DebtorId == userId &&
+                d.Status == DebtStatus.Pending);
+
+            if (debt == null)
+                return false;
+
+            debt.Status = DebtStatus.Accepted;
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> DeclineDebtAsync(int debtId, string userId)
+        {
+            var debt = await _context.Debts.FirstOrDefaultAsync(d =>
+                d.DebtId == debtId &&
+                d.DebtorId == userId &&
+                d.Status == DebtStatus.Pending);
+
+            if (debt == null)
+                return false;
+
+            debt.Status = DebtStatus.Declined;
+            await _context.SaveChangesAsync();
+
             return true;
         }
 

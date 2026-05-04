@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PayBuddyApi.DTO.Friendship;
 using PayBuddyApi.DTO.Responses;
@@ -25,7 +24,6 @@ namespace PayBuddyApi.Controllers
             return User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         }
 
-
         [HttpGet]
         public async Task<ActionResult<List<FriendDto>>> GetFriends()
         {
@@ -34,27 +32,69 @@ namespace PayBuddyApi.Controllers
             if (userId == null)
                 return Unauthorized();
 
-            var friends = await _friendshipService.GetFriendsAsync(userId);
-            return Ok(friends);
+            return Ok(await _friendshipService.GetFriendsAsync(userId));
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddFriend(FriendForSaveDTO dto)
+        [HttpGet("requests")]
+        public async Task<IActionResult> GetRequests()
         {
             var userId = GetUserId();
 
             if (userId == null)
                 return Unauthorized();
 
-            var result = await _friendshipService.AddFriendAsync(userId, dto);
+            return Ok(await _friendshipService.GetFriendRequestsAsync(userId));
+        }
+
+        [HttpPost("request")]
+        public async Task<IActionResult> SendRequest(FriendForSaveDTO dto)
+        {
+            var userId = GetUserId();
+
+            if (userId == null)
+                return Unauthorized();
+
+            var result = await _friendshipService.SendFriendRequestAsync(userId, dto);
 
             if (!result.Success)
                 return BadRequest(result.Message);
 
             return Ok(new MessageResponseDto
             {
-                Message = "Friend added successfully."
+                Message = "Friend request sent."
             });
+        }
+
+        [HttpPut("accept/{id}")]
+        public async Task<IActionResult> Accept(int id)
+        {
+            var userId = GetUserId();
+
+            if (userId == null)
+                return Unauthorized();
+
+            var success = await _friendshipService.AcceptFriendRequestAsync(id, userId);
+
+            if (!success)
+                return BadRequest();
+
+            return Ok();
+        }
+
+        [HttpPut("decline/{id}")]
+        public async Task<IActionResult> Decline(int id)
+        {
+            var userId = GetUserId();
+
+            if (userId == null)
+                return Unauthorized();
+
+            var success = await _friendshipService.DeclineFriendRequestAsync(id, userId);
+
+            if (!success)
+                return BadRequest();
+
+            return Ok();
         }
 
         [HttpDelete("{id}")]
@@ -66,14 +106,11 @@ namespace PayBuddyApi.Controllers
                 return Unauthorized();
 
             var result = await _friendshipService.DeleteFriendAsync(id, userId);
-            
+
             if (!result.Success)
                 return BadRequest(result.Message);
 
-            return Ok(new MessageResponseDto
-            {
-                Message = "Friend added successfully."
-            });
+            return Ok();
         }
     }
 }

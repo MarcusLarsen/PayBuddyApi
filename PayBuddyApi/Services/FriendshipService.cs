@@ -22,7 +22,9 @@ namespace PayBuddyApi.Services
         {
             return await _context.Friendships
                 .Include(f => f.Friend)
-                .Where(f => f.UserId == userId)
+                .Where(f =>
+                    f.UserId == userId &&
+                    f.Status == FriendshipStatus.Accepted)
                 .Select(f => new FriendDto
                 {
                     Id = f.Id,
@@ -32,7 +34,24 @@ namespace PayBuddyApi.Services
                 .ToListAsync();
         }
 
-        public async Task<(bool Success, string Message)> AddFriendAsync(string userId, FriendForSaveDTO dto)
+        public async Task<List<FriendRequestDto>> GetFriendRequestsAsync(string userId)
+        {
+            return await _context.Friendships
+                .Include(f => f.User)
+                .Where(f =>
+                    f.FriendId == userId &&
+                    f.Status == FriendshipStatus.Pending)
+                .Select(f => new FriendRequestDto
+                {
+                    Id = f.Id,
+                    UserId = f.UserId,
+                    UserName = f.User.UserName!,
+                    CreatedAt = f.CreatedAt
+                })
+                .ToListAsync();
+        }
+
+        public async Task<(bool Success, string Message)> SendFriendRequestAsync(string userId, FriendForSaveDTO dto)
         {
             var friendUser = await _userManager.FindByNameAsync(dto.FriendUserName);
 
@@ -40,32 +59,71 @@ namespace PayBuddyApi.Services
                 return (false, "User not found.");
 
             if (friendUser.Id == userId)
-                return (false, "You cannot add yourself as a friend.");
+                return (false, "You cannot add yourself.");
 
-            var alreadyFriends = await _context.Friendships.AnyAsync(f =>
-            (f.UserId == userId && f.FriendId == friendUser.Id) ||
-            (f.UserId == friendUser.Id && f.FriendId == userId));
+            var exists = await _context.Friendships.AnyAsync(f =>
+                (f.UserId == userId && f.FriendId == friendUser.Id) ||
+                (f.UserId == friendUser.Id && f.FriendId == userId));
 
-            if (alreadyFriends)
-                return (false, "You are already friends.");
+            if (exists)
+                return (false, "Friend request already exists.");
 
-            var friendship = new Friendship
+            var request = new Friendship
             {
                 UserId = userId,
-                FriendId = friendUser.Id
+                FriendId = friendUser.Id,
+                Status = FriendshipStatus.Pending,
+                CreatedAt = DateTime.UtcNow
             };
 
-            var reverseFriendship = new Friendship
-            {
-                UserId = friendUser.Id,
-                FriendId = userId
-            };
-
-            _context.Friendships.Add(friendship);
-            _context.Friendships.Add(reverseFriendship);
+            _context.Friendships.Add(request);
             await _context.SaveChangesAsync();
 
-            return (true, "Friend added successfully.");
+            return (true, "Friend request sent.");
+        }
+
+        public async Task<bool> AcceptFriendRequestAsync(int requestId, string userId)
+        {
+            var request = await _context.Friendships.FirstOrDefaultAsync(f =>
+                f.Id == requestId &&
+                f.FriendId == userId &&
+                f.Status == FriendshipStatus.Pending);
+
+            if (request == null)
+                return false;
+
+            request.Status = FriendshipStatus.Accepted;
+
+            var reverse = new Friendship
+            {
+                UserId = userId,
+                FriendId = request.UserId,
+                Status = FriendshipStatus.Accepted,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Friendships.Add(reverse);
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> DeclineFriendRequestAsync(int requestId, string userId)
+        {
+            var request = await _context.Friendships.FirstOrDefaultAsync(f =>
+                f.Id == requestId &&
+                f.FriendId == userId &&
+                f.Status == FriendshipStatus.Pending);
+
+            if (request == null)
+                return false;
+
+            request.Status = FriendshipStatus.Declined;
+
+            await _context.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task<(bool Success, string Message)> DeleteFriendAsync(int friendshipId, string userId)
@@ -76,18 +134,19 @@ namespace PayBuddyApi.Services
             if (friendship == null)
                 return (false, "Friendship not found.");
 
-            var reverseFriendship = await _context.Friendships
+            var reverse = await _context.Friendships
                 .FirstOrDefaultAsync(f =>
-                f.UserId == friendship.FriendId &&
-                f.FriendId == friendship.UserId);
+                    f.UserId == friendship.FriendId &&
+                    f.FriendId == friendship.UserId);
 
             _context.Friendships.Remove(friendship);
 
-            if (reverseFriendship != null)
-                _context.Friendships.Remove(reverseFriendship);
+            if (reverse != null)
+                _context.Friendships.Remove(reverse);
 
             await _context.SaveChangesAsync();
-            return (true, "Friend removed successfully.");
+
+            return (true, "Friend removed.");
         }
     }
 }
